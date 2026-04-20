@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treino Ivan">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>Treino Ivan — Hipertrofia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: #0a0a0a;
+    color: #f2f2f2;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  body {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+    background:
+      radial-gradient(ellipse at top, #1a1a1a 0%, #0a0a0a 50%),
+      #0a0a0a;
+    background-attachment: fixed;
+  }
+
+  header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 100;
+  }
+  .brand {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .brand h1 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+  }
+  .brand h1 span { color: #ff3b30; }
+  .brand .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    padding: 9px 16px;
+    border: 1px solid #2a2a2a;
+    background: transparent;
+    color: #999;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tab.active {
+    background: #ff3b30;
+    color: #fff;
+    border-color: #ff3b30;
+  }
+
+  main {
+    padding: 24px 20px 140px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .routine-header { margin-bottom: 22px; }
+  .routine-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #ff3b30;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .routine-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 34px;
+    line-height: 1;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .routine-focus { font-size: 14px; color: #999; line-height: 1.5; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 18px 0 28px;
+    padding: 14px;
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 14px;
+  }
+  .stat { text-align: center; }
+  .stat-value {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 18px;
+    color: #fff;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .exercise {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .exercise:active { transform: scale(0.99); background: #181818; }
+  .exercise::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: #ff3b30;
+    opacity: 0.4;
+  }
+  .exercise.done { opacity: 0.5; }
+  .exercise.done::before { background: #4ade80; opacity: 0.8; }
+  .exercise.done .ex-name { text-decoration: line-through; color: #777; }
+
+  .ex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+  .ex-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 1.5px;
+  }
+  .ex-check {
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid #444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: transparent;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .exercise.done .ex-check {
+    background: #4ade80;
+    border-color: #4ade80;
+    color: #0a0a0a;
+    font-weight: bold;
+  }
+  .ex-name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: -0.3px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+  .ex-scheme {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: #1f1f1f;
+    color: #ddd;
+    border: 1px solid #2a2a2a;
+    font-weight: 600;
+  }
+  .chip.reps { color: #ff3b30; border-color: #3a1512; background: #1a0a0a; }
+  .chip.rest { color: #4ade80; border-color: #143d1f; background: #0a1a10; }
+  .ex-note {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.5;
+    padding-top: 10px;
+    border-top: 1px dashed #222;
+    margin-top: 4px;
+  }
+  .ex-note strong { color: #ddd; font-weight: 600; }
+
+  .section-divider {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 22px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-divider::after { content: ''; flex: 1; height: 1px; background: #222; }
+
+  .timer-dock {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid #222;
+    z-index: 200;
+  }
+  .timer-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .timer-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    min-width: 90px;
+    text-align: center;
+    letter-spacing: -1px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    transition: all 0.2s;
+  }
+  .timer-display.running { color: #4ade80; border-color: #143d1f; }
+  .timer-display.done { color: #ff3b30; border-color: #3a1512; animation: pulse 0.6s ease-in-out 3; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .timer-btns { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+  .t-btn {
+    flex: 1;
+    min-width: 42px;
+    padding: 10px 0;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #ddd;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .t-btn:active { transform: scale(0.96); background: #222; }
+  .t-btn.primary { background: #ff3b30; color: #fff; border-color: #ff3b30; }
+  .t-btn.primary:active { background: #d8322a; }
+
+  .bio-block {
+    background: #0f0f0f;
+    border: 1px solid #1f1f1f;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    font-size: 13px;
+    color: #999;
+    line-height: 1.6;
+  }
+  .bio-block strong { color: #fff; }
+
+  .overview-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 24px; }
+  .overview-card {
+    padding: 14px 16px;
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .overview-card:active { transform: scale(0.98); background: #181818; }
+  .ov-letter {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 26px;
+    color: #ff3b30;
+    width: 38px;
+    text-align: center;
+  }
+  .ov-title { font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ov-sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #777; margin-top: 2px; }
+
+  .principles {
+    padding: 16px;
+    background: linear-gradient(135deg, #1a0a0a 0%, #0a0a0a 100%);
+    border: 1px solid #3a1512;
+    border-radius: 14px;
+    margin-top: 20px;
+  }
+  .principles h3 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    color: #ff3b30;
+  }
+  .principles ul { list-style: none; font-size: 13px; color: #bbb; line-height: 1.7; }
+  .principles li { padding-left: 16px; position: relative; }
+  .principles li::before { content: '▸'; position: absolute; left: 0; color: #ff3b30; }
+
+  .progress-bar {
+    display: flex;
+    gap: 3px;
+    margin-top: 14px;
+  }
+  .progress-seg {
+    flex: 1;
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    transition: background 0.3s;
+  }
+  .progress-seg.done { background: #4ade80; }
+
+  .reset-day {
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #666;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .reset-day:active { background: #1a1a1a; color: #ccc; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>TREINO <span>IVAN</span></h1>
+    <div class="meta">A–B–C–D–E / HIPERTROFIA</div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</header>
+
+<main id="main"></main>
+
+<div class="timer-dock">
+  <div class="timer-inner">
+    <div class="timer-display" id="timer">00:00</div>
+    <div class="timer-btns">
+      <button class="t-btn" onclick="setTimer(60)">60s</button>
+      <button class="t-btn" onclick="setTimer(90)">90s</button>
+      <button class="t-btn" onclick="setTimer(120)">2m</button>
+      <button class="t-btn" onclick="setTimer(180)">3m</button>
+      <button class="t-btn primary" id="playBtn" onclick="toggleTimer()">▶</button>
+      <button class="t-btn" onclick="resetTimer()">↺</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const workout = {
+    overview: {
+      bio: "1,85m · 90kg · ~16% BF · sem restrições. Split ABCDE, 5 dias on / 2 off (ou 5 em 6). Progressão por dupla (double progression): quando bater o topo da faixa de reps em todas as séries com técnica, sobe carga ~2,5–5%. Deload a cada 5–7 semanas.",
+      routines: [
+        { k: "A", title: "Peito + Tríceps", sub: "Push dominante" },
+        { k: "B", title: "Costas + Bíceps", sub: "Pull dominante" },
+        { k: "C", title: "Pernas (quad foco)", sub: "Lower anterior" },
+        { k: "D", title: "Ombros + Trapézio", sub: "Delts + upper back" },
+        { k: "E", title: "Posterior + Pant. + Core", sub: "Lower posterior" },
+      ],
+      principles: [
+        "Aquecimento: 5min esteira/bike + 2 séries leves no 1º exercício.",
+        "RIR 1–2 nas compostas, RIR 0–1 nos isoladores finais.",
+        "Cadência 2-0-1-0 (ecc-pausa-conc-pausa). Excêntrica controlada é não-negociável.",
+        "Registre carga/reps todo treino. Sem log, sem progresso.",
+        "Proteína: 1,8–2,2 g/kg = ~165–200g/dia. Creatina 5g/dia.",
+        "Sono ≥7h. Sem sono, sem hipertrofia.",
+      ],
+    },
+    A: {
+      label: "Rotina A", title: "Peito + Tríceps",
+      focus: "Volume total: 20 séries efetivas. Foco em amplitude completa no peito e estiramento no tríceps (cabeça longa).",
+      stats: { ex: "7", vol: "~20", dur: "60–70min" },
+      blocks: [
+        { section: "Composto pesado", items: [
+          { name: "Supino reto com barra", sets: "4", reps: "6–8", rest: "2–3min", note: "Escápulas retraídas, pés firmes. 2 séries de aquecimento progressivo antes das valendo." },
+        ]},
+        { section: "Volume principal", items: [
+          { name: "Supino inclinado com halter (30°)", sets: "4", reps: "8–10", rest: "90s", note: "Halter desce até alinhar com a linha do mamilo. <strong>Não junte os halteres no topo</strong> — mantenha tensão." },
+          { name: "Crucifixo em polia (cross cable, de baixo p/ cima)", sets: "3", reps: "12–15", rest: "60s", note: "Foco em alongamento na fase excêntrica. Pensa em <strong>abraçar uma árvore grande</strong>." },
+          { name: "Paralelas com inclinação no peito", sets: "3", reps: "até a falha técnica", rest: "2min", note: "Tronco inclinado à frente, cotovelos abrem ~45°. Se puder +8 reps com PC, adicione carga." },
+        ]},
+        { section: "Tríceps", items: [
+          { name: "Tríceps testa com barra EZ", sets: "4", reps: "8–10", rest: "90s", note: "Cotovelos estáveis. Barra desce até a linha da sobrancelha (não à testa). Estica a cabeça longa." },
+          { name: "Tríceps francês unilateral em polia alta", sets: "3", reps: "10–12", rest: "60s", note: "Overhead = máximo estiramento da cabeça longa. Cotovelo apontado pra cima." },
+          { name: "Tríceps corda na polia", sets: "3", reps: "12–15 + drop-set na última", rest: "60s", note: "Abra a corda no final. Drop-set: reduza 30% e vá até a falha." },
+        ]},
+      ],
+    },
+    B: {
+      label: "Rotina B", title: "Costas + Bíceps",
+      focus: "Foco em amplitude e contração. Alterne verticais (largura) e horizontais (espessura). Bíceps com ênfase em cabeça longa e braquial.",
+      stats: { ex: "7", vol: "~22", dur: "65–75min" },
+      blocks: [
+        { section: "Composto pesado", items: [
+          { name: "Levantamento terra (convencional ou romeno)", sets: "4", reps: "5–6", rest: "3min", note: "Se priorizar hipertrofia de costas, escolha <strong>romeno</strong> (mais tempo sob tensão no lombar/glúteo) ou troque por <strong>pulldown pesado</strong>. Convencional se quiser força global." },
+        ]},
+        { section: "Volume principal", items: [
+          { name: "Barra fixa (pronada, pegada aberta)", sets: "4", reps: "6–10", rest: "2min", note: "Se completar 10 reps nas 4 séries, adicione <strong>carga no cinto</strong>. Puxe pensando em levar o cotovelo ao bolso." },
+          { name: "Remada curvada com barra (pronada)", sets: "4", reps: "8–10", rest: "90s", note: "Tronco ~45°, barra encosta no umbigo. Zero impulso de quadril." },
+          { name: "Remada cavalinho (T-bar) ou remada serrote", sets: "3", reps: "10–12", rest: "90s", note: "Espessura da média das costas. Contração máxima com pausa de 1s." },
+          { name: "Pullover na polia alta (braços estendidos)", sets: "3", reps: "12–15", rest: "60s", note: "Isolador do grande dorsal. Cotovelos levemente flexionados e travados. Pensa em empurrar a barra pra baixo com o dorsal." },
+        ]},
+        { section: "Bíceps", items: [
+          { name: "Rosca direta com barra EZ", sets: "4", reps: "8–10", rest: "90s", note: "Sem balanço de tronco. Cotovelo travado na lateral do corpo." },
+          { name: "Rosca alternada no banco inclinado (45°)", sets: "3", reps: "10–12", rest: "60s", note: "Alongamento máximo do bíceps (cabeça longa). Supinação ativa no meio do movimento." },
+          { name: "Rosca martelo com corda na polia", sets: "3", reps: "12–15", rest: "60s", note: "Mira o braquial e braquiorradial — dá grossura no braço." },
+        ]},
+      ],
+    },
+    C: {
+      label: "Rotina C", title: "Pernas — Foco Quadríceps",
+      focus: "Dia pesado. Priorizando quadríceps com amplitude profunda. Posterior entra como secundário.",
+      stats: { ex: "6", vol: "~20", dur: "70–80min" },
+      blocks: [
+        { section: "Composto pesado", items: [
+          { name: "Agachamento livre (barra nas costas, high-bar)", sets: "5", reps: "5–8", rest: "3min", note: "Profundidade abaixo do paralelo. 2 séries de aquecimento crescente. <strong>Se joelho dói, ajuste stance mais aberto e aponte os pés levemente pra fora.</strong>" },
+        ]},
+        { section: "Volume principal", items: [
+          { name: "Leg press 45°", sets: "4", reps: "10–12", rest: "2min", note: "Pés médios no plataforma. Desce até quase encostar joelho no peito. Não trave joelho no topo." },
+          { name: "Hack machine (agachamento hack)", sets: "3", reps: "10–12", rest: "90s", note: "Pés baixos na plataforma = foco quadríceps. Desce lento e profundo." },
+          { name: "Cadeira extensora", sets: "4", reps: "12–15", rest: "60s", note: "Pausa de 1s no topo (contração isométrica). Última série: <strong>rest-pause</strong> (falha, 15s, mais reps até falha, 15s, mais reps)." },
+        ]},
+        { section: "Posterior (secundário)", items: [
+          { name: "Stiff com halteres ou barra", sets: "3", reps: "10–12", rest: "90s", note: "Joelhos levemente flexionados e travados. Desce sentindo o posterior esticar — não precisa chegar ao chão." },
+          { name: "Mesa flexora", sets: "3", reps: "12–15", rest: "60s", note: "Controle na excêntrica (3s pra descer). Quadril colado no banco." },
+        ]},
+      ],
+    },
+    D: {
+      label: "Rotina D", title: "Ombros + Trapézio",
+      focus: "Deltoide com foco em porção medial (largura) e posterior (geralmente subdesenvolvida). Trapézio fecha o treino.",
+      stats: { ex: "7", vol: "~22", dur: "60–70min" },
+      blocks: [
+        { section: "Composto pesado", items: [
+          { name: "Desenvolvimento militar com barra (em pé) ou halteres sentado", sets: "4", reps: "6–8", rest: "2–3min", note: "Em pé recruta mais core. Sentado permite mais carga. Alterne a cada ciclo." },
+        ]},
+        { section: "Volume — Delts medial & posterior", items: [
+          { name: "Elevação lateral com halteres", sets: "5", reps: "10–15", rest: "60s", note: "O exercício mais importante pra largura. <strong>Cotovelo lidera o movimento</strong>, punho levemente inclinado pra baixo (como se despejasse água)." },
+          { name: "Elevação lateral na polia baixa (unilateral)", sets: "3", reps: "12–15", rest: "45s", note: "Polia mantém tensão constante. Cabo passa por trás do corpo." },
+          { name: "Crucifixo inverso (peck-deck reverso ou halteres inclinado)", sets: "4", reps: "12–15", rest: "60s", note: "Deltoide posterior. <strong>Pense em empurrar os cotovelos pra trás</strong>, não em juntar as escápulas." },
+          { name: "Face pull na polia", sets: "3", reps: "15–20", rest: "45s", note: "Posterior + rotadores externos. Cotovelos altos, puxe a corda até a linha dos olhos." },
+        ]},
+        { section: "Trapézio", items: [
+          { name: "Encolhimento com halteres pesados", sets: "4", reps: "10–12", rest: "90s", note: "Movimento puramente vertical. Pausa de 1s no topo. Sem rotação." },
+          { name: "Remada alta com corda na polia baixa", sets: "3", reps: "12–15", rest: "60s", note: "Pega a porção mais alta do trapézio + delt medial. Cotovelos sempre acima dos punhos." },
+        ]},
+      ],
+    },
+    E: {
+      label: "Rotina E", title: "Posterior + Panturrilha + Core",
+      focus: "Dia de posterior de coxa e glúteo como foco principal. Panturrilha com alto volume e frequência. Core funcional.",
+      stats: { ex: "7", vol: "~22", dur: "60–70min" },
+      blocks: [
+        { section: "Composto pesado", items: [
+          { name: "Levantamento terra romeno com barra", sets: "4", reps: "6–8", rest: "2–3min", note: "A rainha do posterior. Joelhos quase travados, quadril vai pra trás, barra desliza rente à perna. Para quando o estiramento limitar — não forçar flexão de coluna." },
+        ]},
+        { section: "Volume — Posterior & Glúteo", items: [
+          { name: "Mesa flexora deitada", sets: "4", reps: "10–12", rest: "90s", note: "Foco em cabeça longa do bíceps femoral. Ponta dos pés apontada (flexão plantar) = mais recrutamento." },
+          { name: "Cadeira flexora sentada (unilateral se possível)", sets: "3", reps: "12–15", rest: "60s", note: "Posiciona o posterior em estiramento = resposta hipertrófica superior. Provado em literatura recente." },
+          { name: "Elevação pélvica com barra (hip thrust)", sets: "4", reps: "8–12", rest: "2min", note: "Glúteo máximo. Pausa de 1s no topo com contração forte. Queixo pra dentro, costelas baixas." },
+        ]},
+        { section: "Panturrilha", items: [
+          { name: "Panturrilha em pé (máquina ou no smith)", sets: "5", reps: "10–12", rest: "60s", note: "Amplitude TOTAL. 2s de alongamento no fundo, 1s de contração no topo. Gastrocnêmio." },
+          { name: "Panturrilha sentada", sets: "4", reps: "15–20", rest: "45s", note: "Sóleo. Cadência lenta, sem rebote. Dor de verdade = crescimento." },
+        ]},
+        { section: "Core", items: [
+          { name: "Abdominal na polia alta (ajoelhado) + prancha", sets: "3+3", reps: "15 reps / 45–60s", rest: "45s", note: "Alterne: abdominal na polia com flexão de coluna + prancha isométrica. Superset." },
+        ]},
+      ],
+    },
+  };
+
+  // Estado em memória (reseta ao fechar o app)
+  const doneState = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
+
+  const tabsEl = document.getElementById('tabs');
+  const mainEl = document.getElementById('main');
+  const keys = ['OVERVIEW', 'A', 'B', 'C', 'D', 'E'];
+  let currentView = 'OVERVIEW';
+
+  function renderTabs(active) {
+    tabsEl.innerHTML = keys.map(k =>
+      `<button class="tab ${k === active ? 'active' : ''}" onclick="render('${k}')">${k === 'OVERVIEW' ? 'VISÃO' : 'ROT. ' + k}</button>`
+    ).join('');
+  }
+
+  function toggleExercise(key, idx) {
+    if (doneState[key].has(idx)) doneState[key].delete(idx);
+    else doneState[key].add(idx);
+    render(key);
+    if (navigator.vibrate) navigator.vibrate(20);
+  }
+
+  function resetDay(key) {
+    doneState[key].clear();
+    render(key);
+  }
+
+  function render(key) {
+    currentView = key;
+    renderTabs(key);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
+    if (key === 'OVERVIEW') {
+      const ov = workout.overview;
+      mainEl.innerHTML = `
+        <div class="routine-header">
+          <div class="routine-label">Protocolo</div>
+          <h2 class="routine-title">Split A–E<br>Hipertrofia</h2>
+        </div>
+        <div class="bio-block"><strong>Ivan</strong> — ${ov.bio}</div>
+        <div class="section-divider">Rotinas</div>
+        <div class="overview-grid">
+          ${ov.routines.map(r => {
+            const total = countExercises(r.k);
+            const done = doneState[r.k].size;
+            return `
+            <div class="overview-card" onclick="render('${r.k}')">
+              <div class="ov-letter">${r.k}</div>
+              <div style="flex:1">
+                <div class="ov-title">${r.title}</div>
+                <div class="ov-sub">${r.sub} · ${done}/${total} feitos</div>
+              </div>
+            </div>
+          `;}).join('')}
+        </div>
+        <div class="principles">
+          <h3>Princípios não-negociáveis</h3>
+          <ul>${ov.principles.map(p => `<li>${p}</li>`).join('')}</ul>
+        </div>
+      `;
+      return;
+    }
+
+    const r = workout[key];
+    const total = countExercises(key);
+    const done = doneState[key].size;
+
+    let html = `
+      <div class="routine-header">
+        <div class="routine-label">${r.label}</div>
+        <h2 class="routine-title">${r.title}</h2>
+        <div class="routine-focus">${r.focus}</div>
+        <div class="progress-bar">
+          ${Array.from({length: total}, (_,i) => `<div class="progress-seg ${doneState[key].has(i) ? 'done' : ''}"></div>`).join('')}
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-value">${done}/${total}</div><div class="stat-label">Progresso</div></div>
+        <div class="stat"><div class="stat-value">${r.stats.vol}</div><div class="stat-label">Séries</div></div>
+        <div class="stat"><div class="stat-value">${r.stats.dur}</div><div class="stat-label">Duração</div></div>
+      </div>
+    `;
+
+    let counter = 0;
+    r.blocks.forEach(block => {
+      html += `<div class="section-divider">${block.section}</div>`;
+      block.items.forEach(item => {
+        const idx = counter;
+        const isDone = doneState[key].has(idx);
+        html += `
+          <div class="exercise ${isDone ? 'done' : ''}" onclick="toggleExercise('${key}', ${idx})">
+            <div class="ex-header">
+              <div class="ex-num">EX ${String(idx+1).padStart(2, '0')}</div>
+              <div class="ex-check">✓</div>
+            </div>
+            <div class="ex-name">${item.name}</div>
+            <div class="ex-scheme">
+              <span class="chip">${item.sets} séries</span>
+              <span class="chip reps">${item.reps} reps</span>
+              <span class="chip rest">⏱ ${item.rest}</span>
+            </div>
+            <div class="ex-note">${item.note}</div>
+          </div>
+        `;
+        counter++;
+      });
+    });
+
+    html += `<button class="reset-day" onclick="resetDay('${key}')">↺ Resetar dia</button>`;
+    mainEl.innerHTML = html;
+  }
+
+  function countExercises(key) {
+    return workout[key].blocks.reduce((acc, b) => acc + b.items.length, 0);
+  }
+
+  // Timer
+  let timerSec = 0;
+  let timerRemaining = 0;
+  let timerInterval = null;
+  const timerEl = document.getElementById('timer');
+  const playBtn = document.getElementById('playBtn');
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  }
+
+  function setTimer(sec) {
+    timerSec = sec;
+    timerRemaining = sec;
+    clearInterval(timerInterval);
+    timerInterval = null;
+    playBtn.textContent = '▶';
+    timerEl.className = 'timer-display';
+    timerEl.textContent = fmt(sec);
+  }
+
+  function toggleTimer() {
+    if (timerRemaining <= 0 && timerSec > 0) timerRemaining = timerSec;
+    if (timerRemaining <= 0) return;
+
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      playBtn.textContent = '▶';
+      timerEl.className = 'timer-display';
+    } else {
+      playBtn.textContent = '❚❚';
+      timerEl.className = 'timer-display running';
+      timerInterval = setInterval(() => {
+        timerRemaining--;
+        timerEl.textContent = fmt(timerRemaining);
+        if (timerRemaining <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          playBtn.textContent = '▶';
+          timerEl.className = 'timer-display done';
+          timerEl.textContent = 'GO!';
+          if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+          try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.value = 880;
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+            osc.start(); osc.stop(ctx.currentTime + 0.8);
+          } catch(e) {}
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    timerSec = 0;
+    timerRemaining = 0;
+    playBtn.textContent = '▶';
+    timerEl.className = 'timer-display';
+    timerEl.textContent = '00:00';
+  }
+
+  // Service Worker para funcionamento offline
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+
+  render('OVERVIEW');
+</script>
+</body>
+</html>
